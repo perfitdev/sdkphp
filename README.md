@@ -1,10 +1,6 @@
 # PHP SDK
 
-A lo largo de esta guía, vimos ejemplos en PHP que utilizaban la función [file_get_contents](http://php.net/manual/en/function.file-get-contents.php). Si bien era sencillo comunicarse con el API de esa forma, si tenemos que hacer muchas llamadas es posible que el código se repita innecesariamente.
-
-En esos casos te recomendamos utilizar el SDK para PHP del API de Perfit, una librería pensada para simplificar el consumo del API de Perfit. Funciona como un wrapper de [CURL](http://php.net/manual/en/book.curl.php), abstrayendo la complejidad del armado de los pedidos y simplificando la obtención de la información.
-
-Utilizarlo es muy fácil: en este tutorial veremos cómo instalarlo, utilizarlo y sacarle provecho al máximo.
+El PHP SDK está pensado para simplificar el consumo del API de Perfit. Funciona como un wrapper de CURL abstrayendo la complejidad del armado de los pedidos y simplificando la obtención de la información.
 
 # Instalación
 
