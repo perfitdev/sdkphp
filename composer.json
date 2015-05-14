@@ -1,5 +1,5 @@
 {
-  "name": "perfit/PHPSDK",
+  "name": "perfitdev/sdkphp",
   "description": "PHP SDK for Perfit",
   "keywords": ["perfit", "php", "sdk"],
   "minimum-stability": "dev",
