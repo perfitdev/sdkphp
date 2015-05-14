@@ -1,4 +1,4 @@
 Perfit PHP SDK
 ==============
 
-[Documentation](http://developers.myperfit.com/sdk-php)
+Documentación disponible en [developers.myperfit.com/sdk-php](http://developers.myperfit.com/sdk-php)
