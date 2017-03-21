@@ -1,6 +1,11 @@
 <?php namespace PerfitSDK;
-include "Exceptions/AccountRequiered.php";
-use PerfitSDK\AccountRequiered;
+
+require_once "Exceptions/AccountRequired.php";
+require_once "Exceptions/UnauthorizedLogin.php";
+
+use PerfitSDK\Exceptions\AccountRequired;
+use PerfitSDK\Exceptions\UnauthorizedLogin;
+
 /**
  * Perfit class wrapper for Perfit UI communication
  *
@@ -126,7 +131,12 @@ class Perfit {
 			$this->token($response->data->token);
 			$this->account($response->data->account);
 		} else {
-		    throw new AccountRequiered();
+		    if($response->error->type == "UNAUTHORIZED"){
+		        throw new UnauthorizedLogin();
+            } else if ($response->error->type == "ACCOUNT_REQUIRED"){
+                throw new AccountRequired();
+            }
+            throw new \Exception();
         }
 		return $response;
 
