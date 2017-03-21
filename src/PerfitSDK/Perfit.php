@@ -1,5 +1,6 @@
 <?php namespace PerfitSDK;
-
+include "Exceptions/AccountRequiered.php";
+use PerfitSDK\AccountRequiered;
 /**
  * Perfit class wrapper for Perfit UI communication
  *
@@ -25,10 +26,10 @@ class Perfit {
 	 * @var $curl_opts Curl options
 	 */
 	public $curl_opts = array(
-		CURLOPT_USERAGENT => "PERFIT-PHP-SDK-1.0.0", 
+		CURLOPT_USERAGENT => "PERFIT-PHP-SDK-1.0.0",
 		CURLOPT_SSL_VERIFYPEER => false,
-		CURLOPT_CONNECTTIMEOUT => 10, 
-		CURLOPT_RETURNTRANSFER => 1, 
+		CURLOPT_CONNECTTIMEOUT => 10,
+		CURLOPT_RETURNTRANSFER => 1,
 		CURLOPT_TIMEOUT => 60,
 		CURLOPT_HTTPHEADER => array (
 			"Content-Type: application/x-www-form-urlencoded",
@@ -123,8 +124,10 @@ class Perfit {
 		// Successful login, store token
 		if ($response->success) {
 			$this->token($response->data->token);
-			$this->account();
-		}
+			$this->account($response->data->account);
+		} else {
+		    throw new AccountRequiered();
+        }
 		return $response;
 
 		return true;
@@ -225,7 +228,12 @@ class Perfit {
 	 * @return object
 	 */
 	public function params($params) {
-		$this->params = array_merge($this->params, $params);
+	    if (is_array($params)){
+            $this->params = array_merge($this->params, $params);
+        } else {
+	        $this->params = $params;
+        }
+
 		return $this;
 	}
 
@@ -298,9 +306,13 @@ class Perfit {
 			$this->params($params);
 		}
 
-		if (!$url) {
-			$url = $this->buildRequestUrl();
-		}
+		if (! $url){
+            $url = $this->buildRequestUrl($url);
+        } else {
+            $url = $this->buildRequestUrlLink($url);
+        }
+
+
 
 		// Build curl opts
 		$opts = $this->curl_opts;
@@ -311,7 +323,12 @@ class Perfit {
 		else {
 			$opts[CURLOPT_POST] = true;
 			// $opts[CURLOPT_POSTFIELDS] = $this->params;
-			$opts[CURLOPT_POSTFIELDS] = http_build_query($this->params);
+            if (is_array($this->params)){
+                $opts[CURLOPT_POSTFIELDS] = http_build_query($this->params);
+            } else {
+                $opts[CURLOPT_POSTFIELDS] = $this->params;
+            }
+
 		}
 
 		$request = array (
@@ -330,9 +347,13 @@ class Perfit {
 			curl_setopt_array($ch, $opts);
 		}
 
-		$response = json_decode(curl_exec($ch));
+		$response = curl_exec($ch);
+		if ($this->isJson($response)){
+            $response = json_decode($response);
+            $response->request = (object)$request;
+        }
 
-		$response->request = (object)$request;
+
 
 		curl_close($ch);
 
@@ -341,12 +362,46 @@ class Perfit {
 		return $response;
 	}
 
+    /**
+     * Build request url with information provided
+     *
+     * @return string Request url
+     */
+    private function buildRequestUrl() {
+
+        // Build request url
+        $request = '';
+
+        if ($this->defaultSettings['version']) {
+            $request .= '/v'.$this->defaultSettings['version'];
+        }
+
+        if ($this->namespace) {
+            if ($this->account()) {
+                $request .= '/'.$this->account();
+            }
+            $request .= '/'.$this->namespace;
+        }
+
+        // Add id if set
+        if ($this->id) {
+            $request .= '/'.$this->id;
+        }
+
+        // Add action if set
+        if ($this->action) {
+            $request .= '/'.$this->action;
+        }
+
+        return $request;
+    }
+
 	/**
 	 * Build request url with information provided
 	 *
 	 * @return string Request url
 	 */
-	private function buildRequestUrl() {
+	private function buildRequestUrlLink($url) {
 
 		// Build request url
 		$request = '';
@@ -355,22 +410,10 @@ class Perfit {
 			$request .= '/v'.$this->defaultSettings['version'];
 		}
 
-		if ($this->namespace) {
-			if ($this->account()) {
-				$request .= '/'.$this->account();
-			}
-			$request .= '/'.$this->namespace;
-		}
-
-		// Add id if set
-		if ($this->id) {
-			$request .= '/'.$this->id;
-		}
-
-		// Add action if set
-		if ($this->action) {
-			$request .= '/'.$this->action;
-		}
+        if ($this->account()) {
+            $request .= '/'.$this->account();
+        }
+        $request .= $url;
 
 		return $request;
 	}
@@ -404,5 +447,10 @@ class Perfit {
 		$this->methodOverride = null;
 		$this->params = array();
 	}
+
+	private function isJson($string) {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
 
 }
