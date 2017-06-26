@@ -66,6 +66,11 @@ class Perfit {
 	 */
 	protected $account = null;
 
+    /**
+     * @var $apiKey Stores current apiKey for all calls
+     */
+	protected $apiKey = null;
+
 	/**
 	 * @var $id Stores id for next request
 	 */
@@ -142,6 +147,20 @@ class Perfit {
 
 		return true;
 	}
+
+
+    /**
+     * ApiKey setter/getter
+     *
+     * @param string $apiKey
+     * @return string ApiKey
+     */
+	public function apiKey($apikey = null){
+	    if($apikey){
+	        $this->apiKey = $apikey;
+            $this->curl_opts[CURLOPT_HTTPHEADER][] = "Authorization: Bearer $apikey";
+        }
+    }
 
 	/**
 	 * Token setter/getter
