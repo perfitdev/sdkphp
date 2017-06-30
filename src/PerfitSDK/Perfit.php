@@ -3,6 +3,7 @@
 require_once "Exceptions/AccountRequired.php";
 require_once "Exceptions/UnauthorizedLogin.php";
 
+use function explode;
 use PerfitSDK\Exceptions\AccountRequired;
 use PerfitSDK\Exceptions\UnauthorizedLogin;
 
@@ -95,6 +96,7 @@ class Perfit {
 	public function __construct($settings = null) {
 		// Store settings
 		$this->settings($settings);
+		$this->apiKey($settings["apiKey"]);
 	}
 
 	/**
@@ -158,6 +160,7 @@ class Perfit {
 	public function apiKey($apikey = null){
 	    if($apikey){
 	        $this->apiKey = $apikey;
+	        $this->account(explode("-", $apikey)[0]);
             $this->curl_opts[CURLOPT_HTTPHEADER][] = "Authorization: Bearer $apikey";
         }
     }
