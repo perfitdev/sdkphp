@@ -163,6 +163,7 @@ class Perfit {
 	        $this->account(explode("-", $apikey)[0]);
             $this->curl_opts[CURLOPT_HTTPHEADER][] = "Authorization: Bearer $apikey";
         }
+        return $this->apiKey;
     }
 
 	/**
